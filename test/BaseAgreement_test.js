@@ -1,0 +1,134 @@
+const { expect } = require('chai');
+const utils = require("../utils/utilities.js");
+
+describe('BaseAgreement', async function () { // LEVEL 1
+
+  let baseAgreement, mockOracle, linkToken, dappluToken;
+  let platform, brand, influencer;
+
+  beforeEach(async () => {
+
+    await deployments.fixture(['mocks', 'baseAgreement']);
+
+    // Then, we can get the contracts like normal
+    const DappluToken = await deployments.get('DappluToken');
+    dappluToken = await ethers.getContractAt('DappluToken', DappluToken.address);
+
+    const LinkToken = await deployments.get('LinkToken');
+    linkToken = await ethers.getContractAt('LinkToken', LinkToken.address);
+
+    const MockOracle = await deployments.get('MockOracle');
+    mockOracle = await ethers.getContractAt('MockOracle', MockOracle.address);
+
+    const BaseAgreement = await deployments.get('BaseAgreement');
+    baseAgreement = await ethers.getContractAt('BaseAgreement', BaseAgreement.address);
+
+    // Set signers
+    [_, platform, brand, influencer] = await ethers.getSigners();
+
+  })
+
+  describe("Init base agreement with ETH", () => { // LEVEL 2
+
+    // Get correct params for testing
+    const {
+      salt, 
+      endDate,
+      payPerView,
+      budget,
+      usingEth,
+      notUsingEth,
+      agreementFile,
+
+      mediaLink,
+      viewCountNumber,
+      viewCountHex,
+      jobId,
+      oracleFee
+    } = utils.correctInputParams();
+    const ZERO_ADDRESS = utils.ZERO_ADDRESS();
+    const agreementStatuses = utils.agreementStatuses();
+
+    beforeEach(async () => {
+
+      // Initialize the base agreement like the factory would
+      await baseAgreement.init(
+        platform.address,
+        linkToken.address,
+        mockOracle.address,
+        ZERO_ADDRESS, // zero address for tokenPayment address because we're using eth.
+        brand.address,
+        influencer.address,
+        endDate,
+        payPerView,
+        budget,
+        agreementFile,
+        usingEth
+      )
+
+      // Fund the base agreement with eth like the factory would
+      const tx = {to: baseAgreement.address, value: ethers.utils.hexlify(budget)}
+      await platform.sendTransaction(tx)
+
+    });
+
+    describe("Approve agreement", () => { // LEVEL 3
+
+      it("should let influencer approve an agreement", async() => {
+
+        // Compare agreement status and media link before and after the influencer approves it
+        let details;
+        details = await baseAgreement.getAgreementDetails();
+        assert.equal(details._agreementStatus, agreementStatuses.Proposed, "status equals proposed");
+        await baseAgreement.connect(influencer).approveAgreement(mediaLink);
+        details = await baseAgreement.getAgreementDetails();
+        assert.equal(details._mediaLink, mediaLink, "media link equals");
+        assert.equal(details._agreementStatus, agreementStatuses.Active, "status equals active");
+
+      });
+
+      it("should let influencer reject an agreement", async() => {
+
+        // Compare agreement status before and after the influencer rejects it
+        let details;
+        details = await baseAgreement.getAgreementDetails();
+        assert.equal(details._agreementStatus, agreementStatuses.Proposed, "status equals proposed");
+        await baseAgreement.connect(influencer).rejectAgreement();
+        details = await baseAgreement.getAgreementDetails();
+        assert.equal(details._agreementStatus, agreementStatuses.Rejected, "status equals rejected");
+
+      });
+
+      it("should let influencer get views and withdraw", async() => {
+
+        // Fund agreement with link tokens
+        await linkToken.connect(platform).transfer(baseAgreement.address, ethers.utils.parseEther("0.2"));
+
+        // Approve the agreement to meet required conditions
+        await baseAgreement.connect(influencer).approveAgreement(mediaLink);
+        
+        // Perform withdraw and prep api response
+        const transaction = await baseAgreement.connect(influencer).withdraw(jobId, oracleFee);
+        const tx_receipt = await transaction.wait()
+        const requestId = tx_receipt.events[0].topics[1]
+        const returnData = web3.utils.padRight(web3.utils.toHex(viewCountHex), 64)
+
+        // Get influencer balance before oracle fulfulls
+        const influencerBalance1 = await influencer.getBalance();
+
+        // Fulfill withdraw function to pay influencer
+        const tx = await mockOracle.fulfillOracleRequest(requestId, returnData)
+        await tx.wait()
+
+        // Get influencer balance after oracle fulfulls
+        const influencerBalance2 = await influencer.getBalance();
+        const difference = influencerBalance2.sub(influencerBalance1);
+
+        assert.equal(difference.toString(), viewCountNumber * payPerView, "influencer paid correctly");
+
+      });
+    });
+  });
+});
+
+
