@@ -173,21 +173,21 @@ contract AgreementFactory {
             token.transferFrom(_brand, payable(address(_agreement)), _budget);
         }
         // Initialize the agreement
-        // _agreement.init(
-        //     platformAddress,
-        //     _link,
-        //     _oracle,
-        //     _tokenPaymentAddress,
-        //     _brand, 
-        //     _influencer,
-        //     _endDate,
-        //     _payPerView,
-        //     _budget,
-        //     _usingEth
-        // );
-        // // Give the agreement access to the factory's link
-        // LinkTokenInterface link = LinkTokenInterface(_link);
-        // link.approve(payable(address(_agreement)), link.balanceOf(address(this)));
+        _agreement.init(
+            platformAddress,
+            _link,
+            _oracle,
+            _tokenPaymentAddress,
+            _brand, 
+            _influencer,
+            _endDate,
+            _payPerView,
+            _budget,
+            _usingEth
+        );
+        // Give the agreement access to the factory's link
+        LinkTokenInterface link = LinkTokenInterface(_link);
+        link.approve(payable(address(_agreement)), link.balanceOf(address(this)));
 
     }
 

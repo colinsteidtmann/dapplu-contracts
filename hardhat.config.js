@@ -11,10 +11,6 @@ require("./tasks/accounts")
 require("./tasks/balance")
 require("./tasks/fund-link")
 require("./tasks/block-number")
-require("./tasks/block-number")
-require("./tasks/random-number-consumer")
-require("./tasks/price-consumer")
-require("./tasks/api-consumer")
 
 
 require('dotenv').config()

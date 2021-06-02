@@ -1,7 +1,7 @@
 <br/>
 <p align="center">
-<a href="https://chain.link" target="_blank">
-<img src="https://raw.githubusercontent.com/smartcontractkit/chainlink-hardhat-box/master/box-img-lg.png" width="225" alt="Chainlink Hardhat logo">
+<a href="https://dapplu.com/" target="_blank">
+<img src="./dappluLogo.png" width="225" alt="Dapplu logo">
 </a>
 </p>
 <br/>
