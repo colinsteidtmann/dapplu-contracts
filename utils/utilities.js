@@ -13,8 +13,6 @@ const utilities = {
 
   generateSaltValue: () => ethers.utils.hexZeroPad(ethers.BigNumber.from(ethers.utils.randomBytes(20)).toHexString(), 20),
 
-  generateAgreementFile: () => ethers.utils.hexZeroPad(ethers.BigNumber.from(ethers.utils.randomBytes(32)).toHexString(), 32),
-
   generateJobId: () => ethers.utils.hexZeroPad(ethers.BigNumber.from(ethers.utils.randomBytes(32)).toHexString(), 32),
 
   correctInputParams: () => {
@@ -25,11 +23,9 @@ const utilities = {
       budget: 10, 
       usingEth: true,
       notUsingEth: false,
-      agreementFile: utilities.generateAgreementFile(),
       mediaLink: "cPqK_zkTXIk",
       viewCountNumber: 3,
       viewCountHex: "0x33",
-      jobId: "0x50fc4215f89443d185b061e5d7af949000000000000000000000000000000000",
       oracleFee: ethers.utils.parseEther("0.1")
     })
   },

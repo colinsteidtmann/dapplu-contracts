@@ -14,34 +14,16 @@ describe('BaseAgreement', async function () { // LEVEL 1
     [_, platform, brand, influencer] = await ethers.getSigners();
     chainId = await getChainId();
 
-    if (network.name === "hardhat") {
-      await deployments.fixture(['mocks', 'baseAgreement']);
+    dappluToken = await ethers.getContractFactory("DappluToken", networkConfig[chainId]['daiToken']);
 
-      // Then, we can get the contracts like normal
-      const DappluToken = await deployments.get('DappluToken');
-      dappluToken = await ethers.getContractAt('DappluToken', DappluToken.address);
+    linkToken = await ethers.getContractAt("LinkToken", networkConfig[chainId]['linkToken']);
 
-      const LinkToken = await deployments.get('LinkToken');
-      linkToken = await ethers.getContractAt('LinkToken', LinkToken.address);
+    mockOracle = await ethers.getContractAt("MockOracle", networkConfig[chainId]['oracle']);
 
-      const MockOracle = await deployments.get('MockOracle');
-      mockOracle = await ethers.getContractAt('MockOracle', MockOracle.address);
-
-      const BaseAgreement = await deployments.get('BaseAgreement');
-      baseAgreement = await ethers.getContractAt('BaseAgreement', BaseAgreement.address);
-
-    } else {
-      dappluToken = await ethers.getContractFactory("DappluToken", networkConfig[chainId]['daiToken']);
-
-      linkToken = await ethers.getContractAt("LinkToken", networkConfig[chainId]['linkToken']);
-
-      mockOracle = await ethers.getContractAt("MockOracle", networkConfig[chainId]['oracle']);
-
-      // baseAgreement = await ethers.getContractAt("BaseAgreement", networkConfig[chainId]['baseAgreement']);
-      const BaseAgreement = await ethers.getContractFactory("BaseAgreement");
-      baseAgreement = await BaseAgreement.connect(platform).deploy();
-      await baseAgreement.deployed();
-    }
+    // baseAgreement = await ethers.getContractAt("BaseAgreement", networkConfig[chainId]['baseAgreement']);
+    const BaseAgreement = await ethers.getContractFactory("BaseAgreement");
+    baseAgreement = await BaseAgreement.connect(platform).deploy();
+    await baseAgreement.deployed();
 
   });
 
@@ -72,22 +54,22 @@ describe('BaseAgreement', async function () { // LEVEL 1
       
 
       // Initialize the base agreement like the factory would
-      await baseAgreement.connect(platform).init(
-        platform.address,
-        linkToken.address,
-        mockOracle.address,
-        ZERO_ADDRESS, // zero address for tokenPayment address because we're using eth.
-        brand.address,
-        influencer.address,
-        endDate,
-        payPerView,
-        budget,
-        usingEth
-      )
+      // await baseAgreement.connect(platform).init(
+      //   platform.address,
+      //   linkToken.address,
+      //   mockOracle.address,
+      //   ZERO_ADDRESS, // zero address for tokenPayment address because we're using eth.
+      //   brand.address,
+      //   influencer.address,
+      //   endDate,
+      //   payPerView,
+      //   budget,
+      //   usingEth
+      // )
 
       // Fund the base agreement with eth like the factory would
-      const tx = {to: baseAgreement.address, value: ethers.utils.hexlify(budget)};
-      await platform.sendTransaction(tx);
+      // const tx = {to: baseAgreement.address, value: ethers.utils.hexlify(budget)};
+      // await platform.sendTransaction(tx);
 
     });
 
@@ -125,7 +107,7 @@ describe('BaseAgreement', async function () { // LEVEL 1
         await linkToken.connect(platform).transfer(baseAgreement.address, ethers.utils.parseEther("0.2"));
 
         // Approve the agreement to meet required conditions
-        await baseAgreement.connect(influencer).approveAgreement(mediaLink);
+        // await baseAgreement.connect(influencer).approveAgreement(mediaLink);
         
         // Perform withdraw and prep api response
         // baseAgreement.connect(influencer).requestVolumeData();
@@ -133,20 +115,19 @@ describe('BaseAgreement', async function () { // LEVEL 1
           jobId, 
           oracleFee
         );
-        // const tx_receipt = await transaction.wait()
-        // const requestId = tx_receipt.events[0].topics[1]
-        // const returnData = web3.utils.padRight(web3.utils.toHex(viewCountHex), 64)
+        const tx_receipt = await transaction.wait()
 
-        // // Get influencer balance before oracle fulfulls
+        const apiResponse = (await baseAgreement.connect(influencer).getApiResponse()).value.toString();
+        console.log("apiResponse", apiResponse);
+
+        // Get influencer balance before oracle fulfulls
         // const influencerBalance1 = await influencer.getBalance();
-
-        // // Fulfill withdraw function to pay influencer
-        // const tx = await mockOracle.fulfillOracleRequest(requestId, returnData)
-        // await tx.wait()
 
         // // Get influencer balance after oracle fulfulls
         // const influencerBalance2 = await influencer.getBalance();
         // const difference = influencerBalance2.sub(influencerBalance1);
+
+        // console.log("difference", difference.toString());
 
         // assert.equal(difference.toString(), viewCountNumber * payPerView, "influencer paid correctly");
 

@@ -1,6 +1,7 @@
 const { expect } = require('chai');
 const utils = require("../utils/utilities.js");
 ethers.utils.Logger.setLogLevel('error');
+let { networkConfig } = require('../helper-hardhat-config');
 
 
 describe('AgreementFactory', async function () { // LEVEL 1
@@ -10,20 +11,33 @@ describe('AgreementFactory', async function () { // LEVEL 1
 
   beforeEach(async () => {
 
-    await deployments.fixture(['mocks', 'agreementFactory']);
+    if (network.name === "hardhat") {
+      await deployments.fixture(['mocks', 'agreementFactory']);
 
-    // Then, we can get the contracts like normal
-    const DappluToken = await deployments.get('DappluToken');
-    dappluToken = await ethers.getContractAt('DappluToken', DappluToken.address);
+      // Then, we can get the contracts like normal
+      const DappluToken = await deployments.get('DappluToken');
+      dappluToken = await ethers.getContractAt('DappluToken', DappluToken.address);
 
-    const LinkToken = await deployments.get('LinkToken');
-    linkToken = await ethers.getContractAt('LinkToken', LinkToken.address);
+      const LinkToken = await deployments.get('LinkToken');
+      linkToken = await ethers.getContractAt('LinkToken', LinkToken.address);
 
-    const MockOracle = await deployments.get('MockOracle');
-    mockOracle = await ethers.getContractAt('MockOracle', MockOracle.address);
+      const MockOracle = await deployments.get('MockOracle');
+      mockOracle = await ethers.getContractAt('MockOracle', MockOracle.address);
 
-    const AgreementFactory = await deployments.get('AgreementFactory');
-    agreementFactory = await ethers.getContractAt('AgreementFactory', AgreementFactory.address);
+      const AgreementFactory = await deployments.get('AgreementFactory');
+      agreementFactory = await ethers.getContractAt('AgreementFactory', AgreementFactory.address);
+
+    } else {
+      const chainId = await getChainId();
+
+      dappluToken = await ethers.getContractAt("DappluToken", networkConfig[chainId]['daiToken']);
+
+      linkToken = await ethers.getContractAt("LinkToken", networkConfig[chainId]['linkToken']);
+
+      mockOracle = await ethers.getContractAt("MockOracle", networkConfig[chainId]['oracle']);
+
+      agreementFactory = await ethers.getContractAt("AgreementFactory", networkConfig[chainId]['agreementFactory']);
+    }
 
     // Set signers
     [_, platform, brand, influencer] = await ethers.getSigners();
@@ -39,8 +53,7 @@ describe('AgreementFactory', async function () { // LEVEL 1
       payPerView,
       budget,
       usingEth,
-      notUsingEth,
-      agreementFile
+      notUsingEth
     } = utils.correctInputParams();
     const ZERO_ADDRESS = utils.ZERO_ADDRESS();
 
@@ -54,8 +67,7 @@ describe('AgreementFactory', async function () { // LEVEL 1
         endDate,
         payPerView,
         budget,
-        usingEth,
-        agreementFile
+        usingEth
       );
 
       // Make an agreement and get the created agreement's address
@@ -70,7 +82,6 @@ describe('AgreementFactory', async function () { // LEVEL 1
         payPerView,
         budget,
         usingEth,
-        agreementFile,
         {value: budget}
       );
       const event = await utils.getEvent(tx, agreementFactory, "AgreementCreated");
@@ -83,39 +94,42 @@ describe('AgreementFactory', async function () { // LEVEL 1
 
     it("Should let a new agreement be created with dappluToken when passed in correct params", async() => {
 
-      // Get the future address
-      const futureAddr = await agreementFactory.getAddressForCounterfactualAgreement(
-        salt,
-        brand.address,
-        influencer.address,
-        endDate,
-        payPerView,
-        budget,
-        notUsingEth,
-        agreementFile
-      );
+      // Skip Dapplu Token tests if not on local hardhat network
+      if (network.name === "hardhat") {
+        // Get the future address
+        const futureAddr = await agreementFactory.getAddressForCounterfactualAgreement(
+          salt,
+          brand.address,
+          influencer.address,
+          endDate,
+          payPerView,
+          budget,
+          notUsingEth
+        );
 
-      // Make an agreement and get the created agreement's address
-      await dappluToken.connect(platform).transfer(brand.address, budget);
-      await dappluToken.connect(brand).approve(agreementFactory.address, budget);
-      const tx = await agreementFactory.connect(platform).createAgreement(
-        salt,
-        linkToken.address,
-        mockOracle.address,
-        dappluToken.address,
-        brand.address,
-        influencer.address,
-        endDate,
-        payPerView,
-        budget,
-        notUsingEth,
-        agreementFile
-      );
-      const event = await utils.getEvent(tx, agreementFactory, "AgreementCreated");
-      const agreementAddr = event.args.agreement;
+        // Make an agreement and get the created agreement's address
+        await dappluToken.connect(platform).transfer(brand.address, budget);
+        await dappluToken.connect(brand).approve(agreementFactory.address, budget);
+        const tx = await agreementFactory.connect(platform).createAgreement(
+          salt,
+          linkToken.address,
+          mockOracle.address,
+          dappluToken.address,
+          brand.address,
+          influencer.address,
+          endDate,
+          payPerView,
+          budget,
+          notUsingEth
+        );
+        const event = await utils.getEvent(tx, agreementFactory, "AgreementCreated");
+        const agreementAddr = event.args.agreement;
 
-      // Test that the agreement has the correct address
-      assert.equal(futureAddr, agreementAddr, "should have the correct address");
+        // Test that the agreement has the correct address
+        assert.equal(futureAddr, agreementAddr, "should have the correct address");
+      } 
+
+
 
     })
   })

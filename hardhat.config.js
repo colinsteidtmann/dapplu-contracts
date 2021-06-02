@@ -6,6 +6,7 @@ require("@nomiclabs/hardhat-ethers")
 require("@nomiclabs/hardhat-truffle5")
 require("@nomiclabs/hardhat-etherscan")
 require("hardhat-deploy")
+require("hardhat-gas-reporter")
 require("./tasks/accounts")
 require("./tasks/balance")
 require("./tasks/fund-link")
@@ -86,10 +87,22 @@ module.exports = {
     solidity: {
         compilers: [
             {
-                version: "0.6.6"
+                version: "0.6.6",
+                settings: {
+                    optimizer: {
+                    enabled: true,
+                    runs: 200
+                    }
+                }
             },
             {
-                version: "0.4.24"
+                version: "0.4.24",
+                settings: {
+                    optimizer: {
+                    enabled: true,
+                    runs: 200
+                    }
+                }
             }
         ]
     },

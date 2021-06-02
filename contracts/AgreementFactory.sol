@@ -53,7 +53,7 @@ contract AgreementFactory {
 
 
     // *************** External Functions ********************* //
-    bytes20 salt = "c3913af3ef4a0a243f34";
+
     /**
      * @dev Create an agreement
      */
@@ -67,8 +67,7 @@ contract AgreementFactory {
         uint256 _endDate,
         uint256 _payPerView,
         uint256 _budget,
-        bool _usingEth,
-        bytes32 _agreementFile
+        bool _usingEth
     ) 
         external
         payable 
@@ -83,8 +82,7 @@ contract AgreementFactory {
             _endDate,
             _payPerView,
             _budget,
-            _usingEth,
-            _agreementFile
+            _usingEth
         );
         // Create agreement
         address payable agreement = payable(Clones.cloneDeterministic(agreementImplementation, newsalt));
@@ -99,8 +97,7 @@ contract AgreementFactory {
             _endDate,
             _payPerView,
             _budget,
-            _usingEth,
-            _agreementFile
+            _usingEth
         );
         // emit event
         emit AgreementCreated(
@@ -109,6 +106,7 @@ contract AgreementFactory {
             _influencer
         );
         
+        // return agreement;
         return agreement;
     }
 
@@ -122,8 +120,7 @@ contract AgreementFactory {
         uint256 _endDate,
         uint256 _payPerView,
         uint256 _budget,
-        bool _usingEth,
-        bytes32 _agreementFile
+        bool _usingEth
     ) 
         external 
         view
@@ -136,8 +133,7 @@ contract AgreementFactory {
             _endDate,
             _payPerView,
             _budget,
-            _usingEth,
-            _agreementFile
+            _usingEth
         );
         _agreement = Clones.predictDeterministicAddress(agreementImplementation, newsalt);
 
@@ -163,37 +159,35 @@ contract AgreementFactory {
         uint256 _endDate,
         uint256 _payPerView,
         uint256 _budget,
-        bool _usingEth,
-        bytes32 _agreementFile
+        bool _usingEth
     )
         internal 
     {
         // Handle eth if received
         if (_usingEth) {
             // transfer funds to the agreement
-            payable(address(_agreement)).transfer(_budget);
+            payable(address(_agreement)).call{value: _budget}("");
         } else {
             IERC20 token = IERC20(_tokenPaymentAddress);
             // transfer funds to the agreement
             token.transferFrom(_brand, payable(address(_agreement)), _budget);
         }
         // Initialize the agreement
-        _agreement.init(
-            platformAddress,
-            _link,
-            _oracle,
-            _tokenPaymentAddress,
-            _brand, 
-            _influencer,
-            _endDate,
-            _payPerView,
-            _budget,
-            _agreementFile,
-            _usingEth
-        );
-        // Give the agreement access to the factory's link
-        LinkTokenInterface link = LinkTokenInterface(_link);
-        link.approve(payable(address(_agreement)), link.balanceOf(address(this)));
+        // _agreement.init(
+        //     platformAddress,
+        //     _link,
+        //     _oracle,
+        //     _tokenPaymentAddress,
+        //     _brand, 
+        //     _influencer,
+        //     _endDate,
+        //     _payPerView,
+        //     _budget,
+        //     _usingEth
+        // );
+        // // Give the agreement access to the factory's link
+        // LinkTokenInterface link = LinkTokenInterface(_link);
+        // link.approve(payable(address(_agreement)), link.balanceOf(address(this)));
 
     }
 
@@ -206,8 +200,7 @@ contract AgreementFactory {
         uint256 _endDate,
         uint256 _payPerView,
         uint256 _budget,
-        bool _usingEth,
-        bytes32 _agreementFile
+        bool _usingEth
 
     ) 
         internal 
@@ -221,8 +214,7 @@ contract AgreementFactory {
                 _endDate,
                 _payPerView,
                 _budget,
-                _usingEth,
-                _agreementFile
+                _usingEth
             )), _salt
         ));
     }

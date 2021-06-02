@@ -1,24 +1,28 @@
+KovanAgreementFactory = require("./deployments/kovan/AgreementFactory.json");
+KovanBaseAgreement = require("./deployments/kovan/BaseAgreement.json");
+
+
 const networkConfig = {
     default: {
         name: 'hardhat',
         fee: '100000000000000000',
         keyHash: '0x6c3699283bda56ad74f6b855546325b68d482e983852a7a82979cc4807b641f4',
-        jobId: '29fa9aa13bf1468788b7cc4a500a45b8'
+        jobId: '0x3530666334323135663839343433643138356230363165356437616639343930'
     },
     31337: {
         name: 'localhost',
         fee: '100000000000000000',
         keyHash: '0x6c3699283bda56ad74f6b855546325b68d482e983852a7a82979cc4807b641f4',
-        jobId: '29fa9aa13bf1468788b7cc4a500a45b8'
+        jobId: '0x3530666334323135663839343433643138356230363165356437616639343930'
     },
     42: {
         name: 'kovan',
         linkToken: '0xa36085F69e2889c224210F603D836748e7dC0088',
-        ethUsdPriceFeed: '0x9326BFA02ADD2366b30bacB125260Af641031331',
-        keyHash: '0x6c3699283bda56ad74f6b855546325b68d482e983852a7a82979cc4807b641f4',
-        vrfCoordinator: '0xdD3782915140c8f3b190B5D67eAc6dc5760C46E9',
+        daiToken: '0xc4375b7de8af5a38a93548eb8453a498222c4ff2',
+        agreementFactory: KovanAgreementFactory.address,
+        baseAgreement: KovanBaseAgreement.address,
         oracle: '0x2f90A6D021db21e1B2A077c5a37B3C7E75D15b7e',
-        jobId: '29fa9aa13bf1468788b7cc4a500a45b8',
+        jobId: '0x3530666334323135663839343433643138356230363165356437616639343930',
         fee: '100000000000000000',
     },
     4: {
