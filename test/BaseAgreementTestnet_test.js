@@ -18,7 +18,7 @@ describe('BaseAgreement', async function () { // LEVEL 1
 
     linkToken = await ethers.getContractAt("LinkToken", networkConfig[chainId]['linkToken']);
 
-    mockOracle = await ethers.getContractAt("MockOracle", networkConfig[chainId]['oracle']);
+    // mockOracle = await ethers.getContractAt("MockOracle", networkConfig[chainId]['oracle']);
 
     // baseAgreement = await ethers.getContractAt("BaseAgreement", networkConfig[chainId]['baseAgreement']);
     const BaseAgreement = await ethers.getContractFactory("BaseAgreement");
@@ -31,20 +31,20 @@ describe('BaseAgreement', async function () { // LEVEL 1
 
     // Get correct params for testing
     const {
-      salt, 
-      endDate,
-      payPerView,
-      budget,
-      usingEth,
-      notUsingEth,
+      // salt, 
+      // endDate,
+      // payPerView,
+      // budget,
+      // usingEth,
+      // notUsingEth,
 
-      mediaLink,
-      viewCountNumber,
-      viewCountHex,
+      // mediaLink,
+      // viewCountNumber,
+      // viewCountHex,
       oracleFee
     } = utils.correctInputParams();
-    const ZERO_ADDRESS = utils.ZERO_ADDRESS();
-    const agreementStatuses = utils.agreementStatuses();
+    // const ZERO_ADDRESS = utils.ZERO_ADDRESS();
+    // const agreementStatuses = utils.agreementStatuses();
     let chainId, jobId;
 
     beforeEach(async () => {
