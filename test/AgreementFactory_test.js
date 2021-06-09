@@ -47,7 +47,7 @@ beforeEach(async () => {
         // Get static contracts
         dappluToken = await ethers.getContractFactory("DappluToken", networkConfig[chainId]['daiToken']);
         linkToken = await ethers.getContractAt("LinkToken", networkConfig[chainId]['linkToken']);
-        oracle = await ethers.getContractAt("LinkToken", networkConfig[chainId]['oracle']);
+        oracle = await ethers.getContractAt("MockOracle", networkConfig[chainId]['oracle']);
 
         // Deploy existing agreement factory contract
         // agreementFactory = await ethers.getContractAt("AgreementFactory", "");

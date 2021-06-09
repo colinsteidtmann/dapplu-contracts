@@ -48,7 +48,7 @@ beforeEach(async () => {
         // Get static contracts
         dappluToken = await ethers.getContractFactory("DappluToken", networkConfig[chainId]['daiToken']);
         linkToken = await ethers.getContractAt("LinkToken", networkConfig[chainId]['linkToken']);
-        oracle = await ethers.getContractAt("LinkToken", networkConfig[chainId]['oracle']);
+        oracle = await ethers.getContractAt("MockOracle", networkConfig[chainId]['oracle']);
 
         // Deploy existing base agreement contract
         // baseAgreement = await ethers.getContractAt("BaseAgreement", "0xf6bb34F530e2789F1abd2c1555B68190f4A5d3dF");
@@ -57,7 +57,7 @@ beforeEach(async () => {
         const BaseAgreement = await ethers.getContractFactory("BaseAgreement");
         baseAgreement = await BaseAgreement.connect(platform).deploy();
         await baseAgreement.deployed();
-        // console.log("BaseAgreement address", baseAgreement.address);
+        console.log("BaseAgreement address", baseAgreement.address);
 
     }
 
