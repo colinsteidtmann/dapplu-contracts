@@ -31,7 +31,6 @@ const utilities = {
   tokenBaseAgreementParams: (chainId) => {
     return ({
       salt: utilities.generateSaltValue(),
-      tokenPaymentAddress: networkConfig[chainId]['daiToken'],
       endDate: Date.now()+24*60*60, // 1 day from now in unix seconds
       payPerView: 1, 
       budget: 10, 

@@ -326,9 +326,10 @@ contract BaseAgreement is ChainlinkClient {
     {
         if (_payAmount > 0) {
             if (usingEth) {
-                _to.call{value:_payAmount}("");
+                (bool success, ) = _to.call{value:_payAmount}("");
+                require(success, "Unable to transfer");
             } else {
-                require(token.transferFrom(_from, _to, _payAmount), "Unable to transfer");
+                require(token.transfer(_to, _payAmount), "Unable to transfer");
             }
         }
 

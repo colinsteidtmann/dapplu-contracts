@@ -45,18 +45,26 @@ beforeEach(async () => {
     } else {
 
         // Get static contracts
-        dappluToken = await ethers.getContractFactory("DappluToken", networkConfig[chainId]['daiToken']);
         linkToken = await ethers.getContractAt("LinkToken", networkConfig[chainId]['linkToken']);
         oracle = await ethers.getContractAt("MockOracle", networkConfig[chainId]['oracle']);
 
-        // Deploy existing agreement factory contract
+        // Deploy existing Dapplu Token contract
+        dappluToken = await ethers.getContractAt("DappluToken", "0xBb65172b5D28322DE505F6243583C520C2B03a01")
+
+        // Deploy fresh Dapplu Token contract
+        // const DappluToken = await ethers.getContractFactory("DappluToken");
+        // dappluToken = await DappluToken.connect(platform).deploy(1000000000000000); // assign the platform 1000000000000000 dappluTokens
+
+        // Deploy existing Agreement Factory contract
         // agreementFactory = await ethers.getContractAt("AgreementFactory", "");
 
-        // Deploy fresh agreement factory contract
+        // Deploy fresh Agreement Factory contract
         const AgreementFactory = await ethers.getContractFactory("AgreementFactory");
-        agreementFactory = await AgreementFactory.connect(platform).deploy("0xf6bb34F530e2789F1abd2c1555B68190f4A5d3dF", platform.address); // old base agreement address
+        agreementFactory = await AgreementFactory.connect(platform).deploy("0x51a6F6B6Bc519D59Ef40b0a4CBb8b6Eb4B021F6c", platform.address); // old base agreement address
         await agreementFactory.deployed();
+        
         // console.log("AgreementFactory address", agreementFactory.address);
+        // console.log("DappluToken address", dappluToken.address);
 
     }
 
@@ -123,12 +131,10 @@ describe("AgreementFactory created with ETH", async () => {
 
 
 
-
 // ============ This second group of tests uses Dapplu Token as the payment option ==================
 describe("AgreementFactory created with Dapplu Token", async () => {
 
     // Params used in the tests
-    const chainId = await getChainId();
     const {
         salt,
         tokenPaymentAddress,
@@ -141,6 +147,7 @@ describe("AgreementFactory created with Dapplu Token", async () => {
         viewCountHex,
         viewCountNumber,
     } = utils.tokenBaseAgreementParams(chainId);
+
 
     it("Should let a new agreement be created with Dapplu Token when passed in the correct params", async () => {
 
@@ -155,12 +162,15 @@ describe("AgreementFactory created with Dapplu Token", async () => {
             usingEth
         );
 
+        // Approve the future contract to spend the platform's dapplu token
+        await dappluToken.connect(platform).approve(agreementFactory.address, budget);
+
         // Make an agreement and get the created agreement's address
-        const tx = await agreementFactory.createAgreement(
+        const tx = await agreementFactory.connect(platform).createAgreement(
             salt,
             linkToken.address,
             oracle.address,
-            tokenPaymentAddress,
+            dappluToken.address,
             brand.address,
             influencer.address,
             endDate,
@@ -176,5 +186,4 @@ describe("AgreementFactory created with Dapplu Token", async () => {
         assert.equal(futureAddr, agreementAddr, "Created agreement should have the correct address");
 
     });
-
 });

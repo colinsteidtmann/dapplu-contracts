@@ -91,7 +91,8 @@ contract AgreementFactory {
             BaseAgreement(agreement),
             _link,
             _oracle,
-            _tokenPaymentAddress, 
+            _tokenPaymentAddress,
+            msg.sender, 
             _brand,
             _influencer,
             _endDate,
@@ -154,6 +155,7 @@ contract AgreementFactory {
         address _link, 
         address _oracle,
         address _tokenPaymentAddress,
+        address payable _sender,
         address payable _brand,
         address payable _influencer,
         uint256 _endDate,
@@ -166,11 +168,12 @@ contract AgreementFactory {
         // Handle eth if received
         if (_usingEth) {
             // transfer funds to the agreement
-            payable(address(_agreement)).call{value: _budget}("");
+            (bool success, ) = payable(address(_agreement)).call{value: _budget}("");
+            require(success, "Unable to transfer");
         } else {
             IERC20 token = IERC20(_tokenPaymentAddress);
             // transfer funds to the agreement
-            token.transferFrom(_brand, payable(address(_agreement)), _budget);
+            token.transferFrom(_sender, payable(address(_agreement)), _budget);
         }
         // Initialize the agreement
         _agreement.init(
