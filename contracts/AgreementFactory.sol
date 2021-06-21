@@ -17,6 +17,9 @@ contract AgreementFactory {
     address public agreementImplementation;
     // The address of the platform
     address payable public platformAddress;
+    // The vars to configure base agreements
+    string public API_KEY = "&key=AIzaSyB8UEknqf0DmdJW5Ow6rGP8co7I_dZEhwo";
+    string public BASE_URL = "https://youtube.googleapis.com/youtube/v3/videos?part=statistics&id=";
 
     // *************** Events *************************** //
 
@@ -186,7 +189,9 @@ contract AgreementFactory {
             _endDate,
             _payPerView,
             _budget,
-            _usingEth
+            _usingEth,
+            API_KEY,
+            BASE_URL
         );
         // Give the agreement access to the factory's link
         LinkTokenInterface link = LinkTokenInterface(_link);

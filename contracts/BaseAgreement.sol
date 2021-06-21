@@ -26,7 +26,7 @@ contract BaseAgreement is ChainlinkClient {
     // Platform vars
     address payable public factoryAddress;
     address payable public platformAddress;
-    uint256 public PLATFORM_FEE = 1; // 1 % of withdrawn funds go back to the platform
+    uint256 public PLATFORM_FEE;// = 1; // 1 % of withdrawn funds go back to the platform
     // Agreement vars
     IERC20 public token;
     address payable public brand;
@@ -36,9 +36,9 @@ contract BaseAgreement is ChainlinkClient {
     uint256 public budget;
     bool public usingEth;
     string public mediaLink;
-    Status public agreementStatus = Status.PROPOSED;
-    string public API_KEY = "&key=AIzaSyB8UEknqf0DmdJW5Ow6rGP8co7I_dZEhwo";
-    string public BASE_URL = "https://youtube.googleapis.com/youtube/v3/videos?part=statistics&id=";
+    Status public agreementStatus; //= Status.PROPOSED;
+    string public API_KEY ;//= "&key=AIzaSyB8UEknqf0DmdJW5Ow6rGP8co7I_dZEhwo";
+    string public BASE_URL ;//= "https://youtube.googleapis.com/youtube/v3/videos?part=statistics&id=";
 
     // *************** Events *************************** //
 
@@ -97,7 +97,9 @@ contract BaseAgreement is ChainlinkClient {
         uint256 _endDate,
         uint256 _payPerView,
         uint256 _budget,
-        bool _usingEth
+        bool _usingEth,
+        string calldata _API_KEY,
+        string calldata _BASE_URL  
         
     ) 
         external 
@@ -105,6 +107,8 @@ contract BaseAgreement is ChainlinkClient {
         // Initialize platform vars
         factoryAddress = msg.sender;
         platformAddress = _platformAddress;
+        PLATFORM_FEE = 1;
+        agreementStatus = Status.PROPOSED;
         // Initialize chainlink vars
         setChainlinkToken(_link);
         setChainlinkOracle(_oracle);
@@ -116,6 +120,8 @@ contract BaseAgreement is ChainlinkClient {
         payPerView = _payPerView;
         budget = _budget;
         usingEth = _usingEth;
+        API_KEY = _API_KEY;
+        BASE_URL = _BASE_URL;
     }
 
     /**
